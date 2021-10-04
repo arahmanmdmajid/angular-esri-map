@@ -58,8 +58,8 @@ export class MapComponent implements OnInit, OnDestroy {
     const view = new MapView({
       container,
       map: map,
-      center: [39.826, 21.423], // Longitude, latitude
-      zoom: 9
+      center: [40.46, 21.423], // Longitude, latitude
+      zoom: 8
     });
 
     const bookmarks = new Bookmarks({
@@ -91,8 +91,8 @@ export class MapComponent implements OnInit, OnDestroy {
     });
 
     // Add the widget to the top-right corner of the view
-    view.ui.add(lyExpand, 'top-right');
-    view.ui.add(bkExpand, 'top-right');
+    view.ui.add(lyExpand, 'top-left');
+    // view.ui.add(bkExpand, 'top-left');
     view.ui.add(saclebar, "bottom-right");
     
 
@@ -112,7 +112,7 @@ export class MapComponent implements OnInit, OnDestroy {
       outFields: ["Name_Arabic", "Population", "Shape_Area"],
       popupTemplate: {
         title: "حدود المحافظات", 
-        content:"<b>Name:</b> {Name_Arabic}<br><b>Population:</b> {Population}<br><b>Area (sq.km):</b> {Shape_Area}<br>"
+        content:"<b>Name:</b> {Name_Arabic}<br><b>سكان:</b> {Population}<br><b>مساحة الارض (sq.km):</b> {Shape_Area}<br>"
       }
     });
     map.add(MakkahGovernorates);

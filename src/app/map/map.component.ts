@@ -19,8 +19,11 @@ import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import * as urlUtils from '@arcgis/core/core/urlUtils';
 import ScaleBar from '@arcgis/core/widgets/ScaleBar';
-import Legent from '@arcgis/core/widgets/Legend';
+import Legend from '@arcgis/core/widgets/Legend';
 import LayerList from '@arcgis/core/widgets/LayerList';
+import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
+import Compass from "@arcgis/core/widgets/Compass";
+import MapImageLayer from "@arcgis/core/layers/MapImageLayer"
 
 @Component({
   selector: 'app-map',
@@ -30,11 +33,17 @@ import LayerList from '@arcgis/core/widgets/LayerList';
 export class MapComponent implements OnInit, OnDestroy {
   public view: any = null;
 
-  
-    // The <div> where we will place the map
+
+  // The <div> where we will place the map
   @ViewChild('mapViewNode', { static: true }) private mapViewEl: ElementRef;
 
   initializeMap(): Promise<any> {
+    let maysanGov = new MapImageLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Maysaan/MapServer",
+      title: "محافظة ميسان"
+    });
+    // map.add(maysanGov);
+
 
     urlUtils.addProxyRule({
       urlPrefix: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Public/MakkahGovernorates/MapServer",
@@ -46,7 +55,8 @@ export class MapComponent implements OnInit, OnDestroy {
 
 
     const map = new Map({
-      basemap: "arcgis-topographic"
+      basemap: "arcgis-topographic",
+      layers:[maysanGov]
     });
 
     const webmap = new WebMap({
@@ -69,32 +79,57 @@ export class MapComponent implements OnInit, OnDestroy {
     });
 
     const layerList = new LayerList({
-      view:view
+      view: view
     });
 
-    const saclebar = new ScaleBar({
+    let saclebar = new ScaleBar({
       view: view,
       unit: "dual"
     });
+    let legend = new Legend({
+      view,
+    });
+    let basemapGallery = new BasemapGallery({
+      view,
+    });
+    let compass = new Compass({
+      view,
+    });
 
+
+    const legdExpand = new Expand({
+      view,
+      content: legend,
+      expanded: false,
+    });
     const lyExpand = new Expand({
       view,
       content: layerList,
       expanded: false,
-    })
-
-
+    });
     const bkExpand = new Expand({
       view,
       content: bookmarks,
       expanded: false,
     });
+    const bgExpand = new Expand({
+      view,
+      content: basemapGallery,
+      expanded: false,
+    });
+
+
 
     // Add the widget to the top-right corner of the view
     view.ui.add(lyExpand, 'top-left');
+    view.ui.add(legdExpand, 'top-left');
     // view.ui.add(bkExpand, 'top-left');
     view.ui.add(saclebar, "bottom-right");
-    
+    view.ui.add(compass, "top-right");
+    view.ui.add(bgExpand, "top-right");
+
+
+
 
 
     // bonus - how many bookmarks in the webmap?
@@ -107,25 +142,28 @@ export class MapComponent implements OnInit, OnDestroy {
     });
 
 
-    const MakkahGovernorates = new FeatureLayer({url:"https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Public/MakkahGovernorates/MapServer",
+    const MakkahGovernorates = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Public/MakkahGovernorates/MapServer",
       title: "حدود المحافظات مكة",
       outFields: ["Name_Arabic", "Population", "Shape_Area"],
       popupTemplate: {
-        title: "حدود المحافظات", 
-        content:"<b>Name:</b> {Name_Arabic}<br><b>سكان:</b> {Population}<br><b>مساحة الارض (sq.km):</b> {Shape_Area}<br>"
+        title: "حدود المحافظات",
+        content: "<b>اسم المحافظة:</b> {Name_Arabic}<br><b>سكان:</b> {Population}<br><b>مساحة الارض (sq.km):</b> {Shape_Area}<br>"
       }
+      // visible:false
     });
     map.add(MakkahGovernorates);
+
 
     this.view = view;
     return this.view.when();
   }
-  
+
   ngOnInit(): any {
     // Initialize MapView and return an instance of MapView
     this.initializeMap().then(() => {
       // The map has been initialized
-        console.log('The map is ready.');
+      console.log('The map is ready.');
     });
   }
 

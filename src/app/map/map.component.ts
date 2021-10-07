@@ -24,6 +24,7 @@ import LayerList from '@arcgis/core/widgets/LayerList';
 import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
 import Compass from "@arcgis/core/widgets/Compass";
 import MapImageLayer from "@arcgis/core/layers/MapImageLayer"
+import GroupLayer from '@arcgis/core/layers/GroupLayer'
 
 @Component({
   selector: 'app-map',
@@ -38,10 +39,66 @@ export class MapComponent implements OnInit, OnDestroy {
   @ViewChild('mapViewNode', { static: true }) private mapViewEl: ElementRef;
 
   initializeMap(): Promise<any> {
+
     let maysanGov = new MapImageLayer({
       url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Maysaan/MapServer",
-      title: "محافظة ميسان"
+      title: "محافظة ميسان كصورة",
+      visible: false
     });
+    let meysanDam = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/0",
+      title: "السدود"
+    });
+    let meysanCenter = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/1",
+      title:"وسط المدينة"
+    });
+    let meysanWells = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/2",
+      title:"آبار"
+    });
+    let meysanStreet = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/3",
+      title:"الشوارع"
+    });
+    let meysanWadi = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/4",
+      title:"الوديان"
+    });
+    let meysanLanduse = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/5",
+      title:"استخدام الأراضي"
+    });
+    let meysanBuilding = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/6",
+      title:"بناء"
+    });
+    let meysanParcel = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/7",
+      title:"قطعة"
+    });
+    let meysanUrban = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/8",
+      title:"منطقة حضرية"
+    });
+    let meysanBound = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/9",
+      title:"الحدود"
+    });
+
+    let meysanGroup = new GroupLayer({
+      title:"محافظة ميسان",
+      layers: [meysanDam, meysanCenter, meysanWells, meysanStreet, meysanWadi, meysanLanduse, meysanBuilding, meysanParcel, meysanUrban, meysanBound],
+      visible:false
+    });
+
+
+
+
+
+
+
+
     // map.add(maysanGov);
 
 
@@ -153,6 +210,7 @@ export class MapComponent implements OnInit, OnDestroy {
       // visible:false
     });
     map.add(MakkahGovernorates);
+    map.add(meysanGroup)
 
 
     this.view = view;

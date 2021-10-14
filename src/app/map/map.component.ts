@@ -23,8 +23,8 @@ import Legend from '@arcgis/core/widgets/Legend';
 import LayerList from '@arcgis/core/widgets/LayerList';
 import BasemapGallery from "@arcgis/core/widgets/BasemapGallery";
 import Compass from "@arcgis/core/widgets/Compass";
-import MapImageLayer from "@arcgis/core/layers/MapImageLayer"
-import GroupLayer from '@arcgis/core/layers/GroupLayer'
+import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
+import GroupLayer from '@arcgis/core/layers/GroupLayer';
 
 @Component({
   selector: 'app-map',
@@ -32,6 +32,8 @@ import GroupLayer from '@arcgis/core/layers/GroupLayer'
   styleUrls: ['./map.component.css']
 })
 export class MapComponent implements OnInit, OnDestroy {
+  
+  constructor(private mapControllerService: MapControllerService){}
   public view: any = null;
 
 
@@ -40,10 +42,10 @@ export class MapComponent implements OnInit, OnDestroy {
 
   initializeMap(): Promise<any> {
 
+
     let maysanGov = new MapImageLayer({
       url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Maysaan/MapServer",
-      title: "محافظة ميسان كصورة",
-      visible: false
+      title: "محافظة ميسان كصورة"
     });
     let meysanDam = new FeatureLayer({
       url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Governorates/Meysaan/FeatureServer/0",
@@ -88,33 +90,28 @@ export class MapComponent implements OnInit, OnDestroy {
 
     let meysanGroup = new GroupLayer({
       title:"محافظة ميسان",
-      layers: [meysanDam, meysanCenter, meysanWells, meysanStreet, meysanWadi, meysanLanduse, meysanBuilding, meysanParcel, meysanUrban, meysanBound],
-      visible:false
+      layers: [meysanBound, meysanUrban, meysanParcel, meysanBuilding, meysanLanduse, meysanWadi, meysanStreet, meysanWells, meysanCenter, meysanDam]
     });
 
-
-
-
-
-
-
-
-    // map.add(maysanGov);
-
-
-    urlUtils.addProxyRule({
-      urlPrefix: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Public/MakkahGovernorates/MapServer",
-      proxyUrl: "https://maps.mrda.gov.sa/Proxy/proxy.ashx"
+    const MakkahGovernorates = new FeatureLayer({
+      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Public/MakkahGovernorates/MapServer",
+      title: "حدود المحافظات مكة",
+      outFields: ["Name_Arabic", "Population", "Shape_Area"],
+      popupTemplate: {
+        title: "حدود المحافظات",
+        content: "<b>اسم المحافظة:</b> {Name_Arabic}<br><b>سكان:</b> {Population}<br><b>مساحة الارض (sq.km):</b> {Shape_Area}<br>"
+      }
+      // visible:false
     });
 
     esriConfig.apiKey = "AAPKc5486a5477b646fca5fbfc34c04a89b2FhoO1r_84yJoxcdgs3zryRSOfyQ45cv_LEr4aFPRd1CMUCUxWBFW9nduux50pMf7";
     const container = this.mapViewEl.nativeElement;
 
-
     const map = new Map({
-      basemap: "arcgis-topographic",
-      layers:[maysanGov]
+      basemap: "arcgis-topographic"//,
+      // layers:[maysanGov]
     });
+
 
     const webmap = new WebMap({
       portalItem: {
@@ -199,25 +196,24 @@ export class MapComponent implements OnInit, OnDestroy {
     });
 
 
-    const MakkahGovernorates = new FeatureLayer({
-      url: "https://webmap.mrda.gov.sa:6443/arcgis/rest/services/Public/MakkahGovernorates/MapServer",
-      title: "حدود المحافظات مكة",
-      outFields: ["Name_Arabic", "Population", "Shape_Area"],
-      popupTemplate: {
-        title: "حدود المحافظات",
-        content: "<b>اسم المحافظة:</b> {Name_Arabic}<br><b>سكان:</b> {Population}<br><b>مساحة الارض (sq.km):</b> {Shape_Area}<br>"
-      }
-      // visible:false
-    });
     map.add(MakkahGovernorates);
-    map.add(meysanGroup)
+    
+    map.add(maysanGov);
+    map.add(meysanGroup);
+
 
 
     this.view = view;
     return this.view.when();
   }
 
+
+
   ngOnInit(): any {
+    
+    // all proxy rules are added from this instace
+    this.mapControllerService.addrule();
+    
     // Initialize MapView and return an instance of MapView
     this.initializeMap().then(() => {
       // The map has been initialized
